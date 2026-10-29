@@ -94,7 +94,16 @@
       logout: function () { ls(K_REMEMBER, null); location.reload(); },
       faceIdState: function () { return faceRec() ? "on" : (faceCapableSync() ? "off" : "unsupported"); },
       enableFaceId: function () { return enableFaceId(dkRaw).catch(function (e) { throw (e && e.friendly) ? e : friendly(e && e.name === "NotAllowedError" ? "Face ID wurde abgebrochen." : "Face ID konnte nicht eingerichtet werden. Das Passwort funktioniert weiter."); }); },
-      disableFaceId: function () { ls(K_FACE, null); ls(K_OFFER, "no"); }
+      disableFaceId: function () { ls(K_FACE, null); ls(K_OFFER, "no"); },
+      // Verschlüsselte Zusatzdatei laden und im Browser entschlüsseln -> Blob
+      file: async function (name, type) {
+        var r = await fetch(name + ".bin?ts=" + Date.now(), { cache: "no-store" });
+        if (!r.ok) throw new Error("Datei nicht gefunden (" + r.status + ")");
+        var buf = new Uint8Array(await r.arrayBuffer());
+        var key = await importDK(dkRaw);
+        var pt = await subtle.decrypt({ name: "AES-GCM", iv: buf.slice(0, 12), additionalData: te.encode("dash-file-" + name + "-v1") }, key, buf.slice(12));
+        return new Blob([pt], { type: type || "application/octet-stream" });
+      }
     };
     $("lock").hidden = true;
     var url = URL.createObjectURL(new Blob([pkg.app], { type: "text/javascript" }));
