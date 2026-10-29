@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#050409">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<title>Dashboard</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap">
+<style>
+  :root { --bg:#050409; --surface:#0C0A14; --raised:#14111F; --line:#1F1A33; --blue:#3D7BFF; --lila:#8B5CF6; --text:#EDEAFF; --muted:#9A93C0; --err:#F43F5E; }
+  html, body { margin:0; background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust:100%; }
+  body { min-height:100vh; min-height:100dvh; }
+  #app { width:100%; }
+  #lock { min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; }
+  #lock[hidden] { display:none; }
+  .card { position:relative; width:100%; max-width:400px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:28px 26px 24px; box-sizing:border-box; box-shadow:0 8px 32px rgba(0,0,0,.45); overflow:hidden; }
+  .card::before { content:""; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(135deg,#3D7BFF 0%,#8B5CF6 100%); }
+  .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  h1 { font-family:"Playfair Display", Georgia, serif; font-style:italic; font-weight:700; font-size:32px; line-height:1.15; margin:6px 0 4px; color:var(--text); }
+  p.sub { color:var(--muted); font-size:14px; margin:0 0 20px; line-height:1.5; }
+  label.f { display:flex; flex-direction:column; gap:6px; }
+  input[type=password] { background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:12px 13px; font:inherit; font-size:16px; outline:none; color-scheme:dark; }
+  input[type=password]:focus { border-color:var(--lila); }
+  input[type=password].bad { border-color:var(--err); }
+  .row { display:flex; align-items:center; gap:8px; margin:14px 0 18px; font-size:14px; color:var(--text); cursor:pointer; user-select:none; }
+  .row input { width:16px; height:16px; accent-color:var(--lila); margin:0; }
+  button.b { width:100%; border-radius:10px; padding:12px 16px; font:inherit; font-weight:600; font-size:15px; cursor:pointer; color:var(--text); background:var(--bg); border:1px solid var(--lila); }
+  button.b.sec { border-color:var(--line); font-weight:500; margin-top:10px; }
+  button.b:disabled { opacity:.6; cursor:default; }
+  .err { color:var(--err); font-size:13px; margin-top:12px; min-height:18px; line-height:1.4; }
+  .note { color:var(--muted); font-size:12px; margin-top:14px; line-height:1.5; }
+  .sep { height:1px; background:var(--line); margin:18px 0; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:9999px; background:var(--lila); margin-right:8px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<div id="lock">
+  <div class="card" role="main">
+    <div class="lbl"><span class="dot"></span>Privat · verschlüsselt</div>
+    <h1>Dashboard</h1>
+    <p class="sub" id="lock-sub">Bitte entsperren, um die Inhalte zu sehen.</p>
+    <div id="pane-face" hidden>
+      <button class="b" id="face-btn" type="button">Mit Face ID entsperren</button>
+      <div class="sep"></div>
+    </div>
+    <form id="pw-form" autocomplete="on">
+      <input type="text" name="username" value="dashboard" autocomplete="username" hidden readonly>
+      <label class="f"><span class="lbl">Passwort</span>
+        <input type="password" id="pw" name="password" autocomplete="current-password" required></label>
+      <label class="row"><input type="checkbox" id="remember"> Angemeldet bleiben (auf diesem Gerät)</label>
+      <button class="b" id="pw-btn" type="submit">Entsperren</button>
+    </form>
+    <div id="pane-offer" hidden>
+      <p class="sub" style="margin-top:4px">Möchtest du dieses Gerät künftig mit Face ID entsperren? Das Passwort funktioniert weiterhin.</p>
+      <button class="b" id="offer-yes" type="button">Face ID aktivieren</button>
+      <button class="b sec" id="offer-no" type="button">Nicht jetzt</button>
+    </div>
+    <div class="err" id="err" role="alert" aria-live="polite"></div>
+    <div class="note" id="note">Entschlüsselung passiert nur in deinem Browser. Ohne Passwort ist hier nichts lesbar.</div>
+  </div>
+</div>
+<div id="app"></div>
+<noscript><p style="padding:24px">Bitte JavaScript aktivieren.</p></noscript>
+<script src="loader.js"></script>
+</body>
+</html>
