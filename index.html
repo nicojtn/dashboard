@@ -55,6 +55,14 @@
       <button class="b" id="face-btn" type="button">Mit Face ID entsperren</button>
       <div class="sep"></div>
     </div>
+    <div id="pane-pin" hidden>
+      <form id="pin-form" autocomplete="off">
+        <label class="f"><span class="lbl">App-PIN</span>
+          <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" enterkeyhint="go"></label>
+        <button class="b" id="pin-btn" type="submit" style="margin-top:12px">Mit PIN entsperren</button>
+      </form>
+      <div class="sep"></div>
+    </div>
     <form id="pw-form" autocomplete="on">
       <input type="text" name="username" value="dashboard" autocomplete="username" hidden readonly>
       <label class="f"><span class="lbl">Passwort</span>
@@ -63,8 +71,16 @@
       <button class="b" id="pw-btn" type="submit">Entsperren</button>
     </form>
     <div id="pane-offer" hidden>
-      <p class="sub" style="margin-top:4px">Möchtest du dieses Gerät künftig mit Face ID entsperren? Das Passwort funktioniert weiterhin.</p>
+      <p class="sub" style="margin-top:4px">Dieses Gerät künftig schneller entsperren – mit Face ID oder einer kurzen App-PIN? Das Passwort funktioniert immer.</p>
       <button class="b" id="offer-yes" type="button">Face ID aktivieren</button>
+      <button class="b sec" id="offer-pin" type="button">App-PIN festlegen (4–6 Ziffern)</button>
+      <form id="pin-setup" hidden autocomplete="off" style="margin-top:12px">
+        <label class="f"><span class="lbl">Neue App-PIN</span>
+          <input type="password" id="pin-new" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off"></label>
+        <label class="f" style="margin-top:10px"><span class="lbl">PIN wiederholen</span>
+          <input type="password" id="pin-new2" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off"></label>
+        <button class="b" id="pin-save" type="submit" style="margin-top:12px">PIN speichern</button>
+      </form>
       <button class="b sec" id="offer-no" type="button">Nicht jetzt</button>
     </div>
     <div class="err" id="err" role="alert" aria-live="polite"></div>
