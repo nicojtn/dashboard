@@ -165,6 +165,7 @@
   }
   function start(pkg, dkRaw) {
     if (started) return; started = true;
+    var cur = pkg;
     window.__DASH__ = pkg.data;
     window.__DASH_API__ = {
       logout: function () { ls(K_REMEMBER, null); location.reload(); },
@@ -185,9 +186,30 @@
         return new Blob([pt], { type: type || "application/octet-stream" });
       }
     };
+    // Neu zeichnen (z. B. mit Live-Kursen): App-Bundle erneut ausführen, Daten bleiben window.__DASH__
+    window.__DASH_API__.remount = function () { runApp(cur.app); };
+    // Neuere vault.json (nach Webhook-Refresh) holen, mit dem vorhandenen Schlüssel entschlüsseln und an Ort und Stelle neu zeichnen.
+    // true = neuer Stand angezeigt, false = noch nichts Neues.
+    window.__DASH_API__.checkVault = async function () {
+      var r = await fetch("vault.json?ts=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) return false;
+      var v = await r.json();
+      if (!v || !v.data || v.data.iv === vault.data.iv) return false;
+      if (v.keyId !== vault.keyId) return false; // anderer Datenschlüssel: erst beim nächsten Entsperren
+      var dk = await importDK(dkRaw);
+      var next = JSON.parse(td.decode(await gcmOpen(dk, v.data.iv, v.data.ct, "dash-data-v1")));
+      vault = v;
+      if ((next.data && next.data.builtTs || 0) <= (cur.data && cur.data.builtTs || 0)) return false;
+      cur = next; window.__DASH__ = next.data; runApp(next.app);
+      return true;
+    };
     $("lock").hidden = true;
-    var url = URL.createObjectURL(new Blob([pkg.app], { type: "text/javascript" }));
-    var s = document.createElement("script"); s.src = url; s.onload = function () { URL.revokeObjectURL(url); };
+    runApp(cur.app);
+  }
+  function runApp(code) {
+    var url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+    var s = document.createElement("script"); s.src = url;
+    s.onload = function () { URL.revokeObjectURL(url); s.remove(); };
     document.body.appendChild(s);
   }
   async function afterPassword(pkg, dkRaw) {
